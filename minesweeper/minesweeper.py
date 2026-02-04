@@ -105,27 +105,34 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        raise NotImplementedError
+        if len(self.cells) == self.count:
+            return self.cells
+        else: return ()
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
+        if self.count == 0:
+            return self.count
 
     def mark_mine(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        raise NotImplementedError
+        if cell in self.cells:
+            self.cells = self.cells - set(cell)
+            self.count -= 1
 
     def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        raise NotImplementedError
+        if cell in self.cells:
+            self.cells -= set(cell)
+
 
 
 class MinesweeperAI():
@@ -176,13 +183,23 @@ class MinesweeperAI():
             1) mark the cell as a move that has been made
             2) mark the cell as safe
             3) add a new sentence to the AI's knowledge base
-               based on the value of `cell` and `count`
+                based on the value of `cell` and `count`
             4) mark any additional cells as safe or as mines
-               if it can be concluded based on the AI's knowledge base
+                if it can be concluded based on the AI's knowledge base
             5) add any new sentences to the AI's knowledge base
-               if they can be inferred from existing knowledge
+                if they can be inferred from existing knowledge
         """
-        raise NotImplementedError
+        self.moves_made += set(cell)
+        for sentence in self.knowledge:
+            sentence.mark_safe(cell)
+        
+        self.knowledge.append(Sentence(cell, count))
+
+        for sentence in self.knowledge:
+            cell_set = set(cell)
+            if cell in sentence:
+                raise NotImplementedError
+
 
     def make_safe_move(self):
         """
