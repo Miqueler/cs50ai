@@ -107,7 +107,7 @@ class Sentence():
         """
         if len(self.cells) == self.count:
             return self.cells
-        else: return ()
+        else: return {}
 
     def known_safes(self):
         """
@@ -115,6 +115,7 @@ class Sentence():
         """
         if self.count == 0:
             return self.count
+        return {}
 
     def mark_mine(self, cell):
         """
@@ -195,10 +196,22 @@ class MinesweeperAI():
         
         self.knowledge.append(Sentence(cell, count))
 
+        buff_set = set()
+        buff_count = int()
+
         for sentence in self.knowledge:
-            cell_set = set(cell)
-            if cell in sentence:
-                raise NotImplementedError
+            for current in self.knowledge:
+
+                if current.cells in sentence.cells:
+                    buff_set = sentence.cells - current.cells
+                    buff_count = sentence.count - current.count
+                    if len(buff_set) == buff_count:
+                        for buff_cell in buff_set:
+                            self.mark_mine(buff_cell)
+                    elif len(buff_set) == 0:
+                        for buff_cell in buff_set:
+                            self.mark_safe(buff_cell)
+
 
 
     def make_safe_move(self):
@@ -210,6 +223,7 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
+        
         raise NotImplementedError
 
     def make_random_move(self):
