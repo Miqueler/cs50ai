@@ -164,7 +164,7 @@ class MinesweeperAI():
         """
         self.mines.add(cell)
         for sentence in self.knowledge:
-            sentence.mark_mine(cell)
+            sentence.mark_safe(cell)
 
     def mark_safe(self, cell):
         """
@@ -219,33 +219,33 @@ class MinesweeperAI():
                 if cell_x - 1 >= 0:
                     self.mark_safe((cell_x - 1, cell_y))
 
-            elif (cell_x - 1, cell_y - 1) not in self.safes and (cell_x - 1, cell_y - 1) not in self.mines:
-                if cell_x - 1 >= 0 and cell_y >= 0:
+            if (cell_x - 1, cell_y - 1) not in self.safes and (cell_x - 1, cell_y - 1) not in self.mines:
+                if cell_x - 1 >= 0 and cell_y - 1 >= 0:
                     self.mark_safe((cell_x - 1, cell_y - 1))
             
-            elif (cell_x - 1, cell_y + 1) not in self.safes and (cell_x - 1, cell_y + 1) not in self.mines:
-                if cell_x - 1 >= 0 and cell_y <= 8:
+            if (cell_x - 1, cell_y + 1) not in self.safes and (cell_x - 1, cell_y + 1) not in self.mines:
+                if cell_x - 1 >= 0 and cell_y <= 7:
                     self.mark_safe((cell_x - 1, cell_y + 1))
 
-            elif (cell_x + 1, cell_y) not in self.safes and (cell_x + 1, cell_y) not in self.mines:
-                if cell_x + 1 <= 8:
+            if (cell_x + 1, cell_y) not in self.safes and (cell_x + 1, cell_y) not in self.mines:
+                if cell_x + 1 <= 7:
                     self.mark_safe((cell_x + 1, cell_y))
 
-            elif (cell_x, cell_y - 1) not in self.safes and (cell_x, cell_y - 1) not in self.mines:
+            if (cell_x, cell_y - 1) not in self.safes and (cell_x, cell_y - 1) not in self.mines:
                 if cell_y - 1 >= 0:
                     self.mark_safe((cell_x, cell_y - 1))
 
-            elif (cell_x, cell_y + 1) not in self.safes and (cell_x, cell_y + 1) not in self.mines:
-                if cell_y + 1 <= 8:
+            if (cell_x, cell_y + 1) not in self.safes and (cell_x, cell_y + 1) not in self.mines:
+                if cell_y + 1 <= 7:
                     self.mark_safe((cell_x, cell_y + 1))
 
-            elif (cell_x + 1, cell_y + 1) not in self.safes and (cell_x + 1, cell_y + 1) not in self.mines:
-                if cell_y + 1 <= 8 and cell_x + 1 <= 8:
+            if (cell_x + 1, cell_y + 1) not in self.safes and (cell_x + 1, cell_y + 1) not in self.mines:
+                if cell_y + 1 <= 7 and cell_x + 1 <= 7:
                     self.mark_safe((cell_x + 1, cell_y + 1))
             
-            elif (cell_x + 1, cell_y - 1) not in self.safes and (cell_x + 1, cell_y - 1) not in self.mines:
-                if cell_y + 1 >= 0 and cell_x + 1 <= 8:
-                    self.mark_safe((cell_x + 1, cell_y - 1))
+            if (cell_x + 1, cell_y - 1) not in self.safes and (cell_x + 1, cell_y - 1) not in self.mines:
+                if cell_y - 1 >= 0 and cell_x + 1 <= 7:
+                    self.mark_safe((cell_x + 1, cell_y - 1))            
 
 
 
@@ -260,6 +260,8 @@ class MinesweeperAI():
         """
         for cell in self.safes:
             if cell not in self.moves_made:
+                print(self.safes)
+                print(cell)
                 return cell
         return None
 
