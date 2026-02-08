@@ -214,10 +214,19 @@ class MinesweeperAI():
         if count == 0:
             cell_x = cell[0]
             cell_y = cell[1]
+
             if (cell_x - 1, cell_y) not in self.safes and (cell_x - 1, cell_y) not in self.mines:
                 if cell_x - 1 >= 0:
                     self.mark_safe((cell_x - 1, cell_y))
+
+            elif (cell_x - 1, cell_y - 1) not in self.safes and (cell_x - 1, cell_y - 1) not in self.mines:
+                if cell_x - 1 >= 0 and cell_y >= 0:
+                    self.mark_safe((cell_x - 1, cell_y - 1))
             
+            elif (cell_x - 1, cell_y + 1) not in self.safes and (cell_x - 1, cell_y + 1) not in self.mines:
+                if cell_x - 1 >= 0 and cell_y <= 8:
+                    self.mark_safe((cell_x - 1, cell_y + 1))
+
             elif (cell_x + 1, cell_y) not in self.safes and (cell_x + 1, cell_y) not in self.mines:
                 if cell_x + 1 <= 8:
                     self.mark_safe((cell_x + 1, cell_y))
@@ -229,9 +238,15 @@ class MinesweeperAI():
             elif (cell_x, cell_y + 1) not in self.safes and (cell_x, cell_y + 1) not in self.mines:
                 if cell_y + 1 <= 8:
                     self.mark_safe((cell_x, cell_y + 1))
-            print(cell)
-            print(self.safes)
-            print(self.mines)
+
+            elif (cell_x + 1, cell_y + 1) not in self.safes and (cell_x + 1, cell_y + 1) not in self.mines:
+                if cell_y + 1 <= 8 and cell_x + 1 <= 8:
+                    self.mark_safe((cell_x + 1, cell_y + 1))
+            
+            elif (cell_x + 1, cell_y - 1) not in self.safes and (cell_x + 1, cell_y - 1) not in self.mines:
+                if cell_y + 1 >= 0 and cell_x + 1 <= 8:
+                    self.mark_safe((cell_x + 1, cell_y - 1))
+
 
 
     def make_safe_move(self):
