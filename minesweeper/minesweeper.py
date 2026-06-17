@@ -196,7 +196,8 @@ class MinesweeperAI():
         new_sentence = Sentence({}, count)
         for i in range(-1, 2):
             for j in range(-1, 2):
-                new_sentence.cells.add((cell[0] + i, cell[1] + j))
+                if cell[0] + i in range(0, self.height) and cell[1] + j in range(0, self.width):
+                    new_sentence.cells.add((cell[0] + i, cell[1] + j))
         new_sentence.cells.remove(cell)
         #Reduces the new sentence given the knowledge
         temp_set = new_sentence.cells.copy()
