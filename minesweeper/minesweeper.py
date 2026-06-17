@@ -188,11 +188,11 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        # Step 1 & 2
+
         self.moves_made.add(cell)
         self.mark_safe(cell)
 
-        # Step 3: build sentence from undecided neighbors only, adjusting count for known mines
+        #build sentence from undecided neighbors only, adjusting count for known mines
         new_cells = set()
         new_count = count
         for i in range(cell[0] - 1, cell[0] + 2):
@@ -210,7 +210,7 @@ class MinesweeperAI():
             if new_sentence not in self.knowledge:
                 self.knowledge.append(new_sentence)
 
-        # Steps 4 & 5: repeat until no new information can be derived
+        #repeat until no new information can be derived
         changed = True
         while changed:
             changed = False
@@ -229,15 +229,15 @@ class MinesweeperAI():
                 self.mark_safe(safe)
                 changed = True
 
-            # Drop sentences whose cells have been fully resolved
+            #Drop solved sentences
             self.knowledge = [s for s in self.knowledge if s.cells]
 
-            # Generate new sentences via subset inference (one pass, no duplicates)
+            #Generate new sentences via subset inference (one pass, no duplicates)
             new_inferences = []
-            for s1 in self.knowledge:
-                for s2 in self.knowledge:
-                    if s1.cells < s2.cells:  # s1 is a proper subset of s2
-                        inferred = Sentence(s2.cells - s1.cells, s2.count - s1.count)
+            for sentence1 in self.knowledge:
+                for sentence2 in self.knowledge:
+                    if sentence1.cells < sentence2.cells:  # s1 is a proper subset of s2
+                        inferred = Sentence(sentence2.cells - sentence1.cells, sentence2.count - sentence1.count)
                         if inferred not in self.knowledge and inferred not in new_inferences:
                             new_inferences.append(inferred)
                             changed = True
