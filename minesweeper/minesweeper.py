@@ -188,81 +188,61 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
+        # Step 1 & 2
         self.moves_made.add(cell)
-
         self.mark_safe(cell)
-        
-        #Creates new sentence with all cells and marks the given cell as safe
-        new_sentence = Sentence({}, count)
-        for i in range(-1, 2):
-            for j in range(-1, 2):
-                if cell[0] + i in range(0, self.height) and cell[1] + j in range(0, self.width):
-                    new_sentence.cells.add((cell[0] + i, cell[1] + j))
-        new_sentence.cells.remove(cell)
-        #Reduces the new sentence given the knowledge
-        temp_set = new_sentence.cells.copy()
-        for is_known_cell in temp_set:
-            if is_known_cell in self.safes:
-                new_sentence.mark_safe(is_known_cell) 
-            if is_known_cell in self.mines:
-                new_sentence.mark_mine(is_known_cell)
-        
-        if new_sentence.cells == {}:
-            return #If empty set it provides no info and cannot be reduced
-        
-        #Adds the new sentence to the knowledge
-        self.knowledge.append(new_sentence)
-        #generates new sentences given the new one
-        temp_set = []
-        for sentence in self.knowledge:
-            inference_sentence = Sentence({}, 0)
-            if sentence.cells <= new_sentence.cells:
-                inference_sentence.count = new_sentence.count - sentence.count
-                inference_sentence.cells = new_sentence.cells.copy()
-                for known_cell in sentence.cells:
-                    inference_sentence.cells.remove(known_cell)
-                temp_set.append(inference_sentence)
-        for item in temp_set:
-            self.knowledge.append(item)
 
-        temp_knowledge1 = self.knowledge.copy()
-        for choice_sentence in temp_knowledge1:
-            temp_set = choice_sentence.cells.copy()
-            if choice_sentence.count == len(choice_sentence.cells):
-                for mine in temp_set:
-                    self.mark_mine(mine)
-            elif choice_sentence.count == 0:
-                for safe in temp_set:
-                    self.mark_safe(safe)
+        # Step 3: build sentence from undecided neighbors only, adjusting count for known mines
+        new_cells = set()
+        new_count = count
+        for i in range(cell[0] - 1, cell[0] + 2):
+            for j in range(cell[1] - 1, cell[1] + 2):
+                if (i, j) == cell:
+                    continue
+                if 0 <= i < self.height and 0 <= j < self.width:
+                    if (i, j) in self.mines:
+                        new_count -= 1
+                    elif (i, j) not in self.safes:
+                        new_cells.add((i, j))
 
-            temp_knowledge2 = self.knowledge.copy()
-            for sentence in temp_knowledge2:
-                inference_sentence = Sentence({}, 0)
-                if sentence.cells <= choice_sentence.cells:
-                    inference_sentence.count = choice_sentence.count - sentence.count
-                    inference_sentence.cells = choice_sentence.cells.copy()
-                    for known_cell in sentence.cells:
-                        inference_sentence.cells.remove(known_cell)
-                    self.knowledge.append(inference_sentence)
-            
-        #for sentence in self.knowledge:
-        #    if sentence.count == len(sentence.cells):
-        #        for mine in sentence.cells:
-        #            self.mark_mine(mine)
-        #    elif sentence.count == 0:
-        #        for safe in sentence.cells:
-        #            self.mark_safe(safe)
-        
-        #Updates knowledge given the new sentence / new inferences
-        #Check for sentences with count=len or count=0
-        for i in range(len(self.knowledge) - 1):
-            print(self.knowledge)
-            print(i)
-            try:    
-                if self.knowledge[i].count == 0 or self.knowledge[i].count == len(self.knowledge[i].cells):
-                    self.knowledge.pop(i)
-            except IndexError:
-                pass
+        if new_cells:
+            new_sentence = Sentence(new_cells, new_count)
+            if new_sentence not in self.knowledge:
+                self.knowledge.append(new_sentence)
+
+        # Steps 4 & 5: repeat until no new information can be derived
+        changed = True
+        while changed:
+            changed = False
+
+            # Mark mines and safes from any conclusive sentence
+            mines_found = set()
+            safes_found = set()
+            for sentence in self.knowledge:
+                mines_found |= sentence.known_mines()
+                safes_found |= sentence.known_safes()
+
+            for mine in mines_found - self.mines:
+                self.mark_mine(mine)
+                changed = True
+            for safe in safes_found - self.safes:
+                self.mark_safe(safe)
+                changed = True
+
+            # Drop sentences whose cells have been fully resolved
+            self.knowledge = [s for s in self.knowledge if s.cells]
+
+            # Generate new sentences via subset inference (one pass, no duplicates)
+            new_inferences = []
+            for s1 in self.knowledge:
+                for s2 in self.knowledge:
+                    if s1.cells < s2.cells:  # s1 is a proper subset of s2
+                        inferred = Sentence(s2.cells - s1.cells, s2.count - s1.count)
+                        if inferred not in self.knowledge and inferred not in new_inferences:
+                            new_inferences.append(inferred)
+                            changed = True
+
+            self.knowledge.extend(new_inferences)
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
