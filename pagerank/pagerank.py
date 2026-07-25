@@ -66,8 +66,12 @@ def transition_model(corpus, page, damping_factor):
             if item == link:
                 pages[link] += 1
 
-    for single in pages:
-        prob_distr[single] = (1 - damping_factor)/len(pages) + damping_factor * pages[single] / len(links)
+    if len(links) == 0:
+        for single in pages:
+                prob_distr[single] = 1 / len(pages)
+    else:
+        for single in pages:
+            prob_distr[single] = (1 - damping_factor)/len(pages) + damping_factor * pages[single] / len(links)
     return prob_distr
 
 
@@ -112,7 +116,7 @@ def iterate_pagerank(corpus, damping_factor):
             pages[page] = (1 - damping_factor)/ len(corpus)
             linking_prob = 0
             for linker in pages.keys():
-                if page in corpus[linker]:
+                if page in corpus[linker] and corpus[linker] != set():
                     linking_prob += pages[linker] / len(corpus[linker])
             pages[page] += damping_factor * linking_prob
         
